@@ -14,7 +14,10 @@ import { useQuery } from '@tanstack/react-query';
 // 뒤에서는 api 호출 작업을 진행한다. api 호출이 완료가 되면 다시 캐시를 업데이트 함
 // == > 캐시는 새로운 데이터가 오면 계속 업데이트가 되고 있음
 // 캐시 수명 조절하는 옵션 gcTime
-
+// staleTime : api호출 조절
+// 캐시된 데이터의 적절한 신선도를 유지할 수 있으며, 네트워크 요청을 최소화하여 성능을 향상시킨다.
+// 만약 캐시를 유지하는 gcTime이 staleTime보다 짧으면 그 사이의 캐시가 빈 때에는 api 호출을 일으킴
+// - > 그러므로 캐시가 staleTime보다 길어야 staleTime으로 api호출을 조절하는 기능을 다하므로 staleTime < gcTime 이 되게 하기
 const ReactQueryPage = () => {
   const { isLoading, data, isError, error } = useQuery({
     queryKey: ['posts'],
@@ -22,10 +25,11 @@ const ReactQueryPage = () => {
       return axios.get('http://localhost:3004/posts');
     },
     retry: 1,
+    staleTime: 60000, // staleTime의 기본값은 0
     select: (data) => {
       return data.data;
     },
-    gcTime: 3000,
+    gcTime: 70000, // staleTime < gcTime
   });
   console.log('ddd', data, isLoading);
   console.log('error', isError, error);
